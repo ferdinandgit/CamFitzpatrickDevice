@@ -1,3 +1,6 @@
+
+#import main modules 
+
 import signal
 import sys
 import RPi.GPIO as GPIO
@@ -5,6 +8,9 @@ from time import sleep
 import time
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
+
+
+#setup screen 
 
 RST = 24
 
@@ -25,7 +31,7 @@ disp.display()
 
 
 
-
+#import computer vision module 
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
@@ -33,6 +39,7 @@ import subprocess
 from picamera import PiCamera
 from time import sleep
 
+#GPIO déclaration
 GPIO.setmode(GPIO.BCM)
 duty=100
 ita_value=0
@@ -45,6 +52,7 @@ GPIO.setup(ledpin,GPIO.OUT)
 pi_pwm = GPIO.PWM(ledpin,1000)		#create PWM instance with frequency
 pi_pwm.start(100)				#start PWM of required Duty Cycle 
 
+#Open camera stream
 camera = PiCamera()
 camera.start_preview()
 sleep(5)
@@ -55,13 +63,15 @@ camera.awb_mode='off'
 camera.exposure_mode = 'off'
 camera.awb_gains=(501/256,189/128)
 
+#import serialisation and cv2 module
 import cv2   
 import numpy as np
 import dill 
 
-# Raspberry Pi pin configuration:
+#declare efb background 
 background = Image.open('test1.ppm').convert('1')
 
+#open file from serialisation
 with open('fred.dill','rb') as f:
         fred=dill.load(f)
 with open('fgreen.dill','rb') as f:
@@ -105,7 +115,7 @@ def phototype_button_pressed_callback(channel):
     picture=cv2.imread('./picture.jpg')
     a,b,c=np.shape(picture)
     cropped_picture=picture[(int(a/2)-90):(int(a/2)+90),(int(b/2)-90):(int(b/2)+90)]
-    #cropped_picture=bgrCorrection(fbleu,fred,fgreen,cropped_picture)
+    cropped_picture=bgrCorrection(fbleu,fred,fgreen,cropped_picture)
     cropped_picture=increase_brightness(cropped_picture,70)
     bleu=np.average(cropped_picture[:,:,:1])
     green=np.average(cropped_picture[:,:,1:2])
